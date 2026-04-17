@@ -65,10 +65,8 @@ func _input(event):
 func apply_zoom_effect(zoom_delta: float, rotation_delta: float):
 	# Update target_zoom directly
 	target_zoom += Vector2(zoom_delta, zoom_delta)
-	
-	# Optional: Hard limit for zooming IN so you don't go to infinity
-	# (Your original code didn't have a limit for zooming in, only zooming out)
 	target_zoom = target_zoom.max(Vector2(0.1, 0.1)) 
+	target_zoom = target_zoom.min(Vector2(2.0, 2.0))
 	
 	if zoom_tween:
 		zoom_tween.kill()
