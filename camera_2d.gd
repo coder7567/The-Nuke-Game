@@ -14,6 +14,9 @@ var zoom_tween: Tween
 var velocity = Vector2.ZERO
 var friction = 0.90
 var acceleration = 1.0
+var shake_offset = Vector2.ZERO
+var shake_strength = 0.0
+var shake_decay = 0.85
 
 
 func _ready():
@@ -56,12 +59,24 @@ func _process(_delta):
 
 	# If we hit boundary, kill velocity in that direction
 	if new_x != position.x:
-		velocity.x = 0
+		velocity.x *= -0.3  # bounce back (invert + dampen)
+		shake_strength = 8.0
 	if new_y != position.y:
-		velocity.y = 0
+		velocity.y *= -0.3
+		shake_strength = 8.0
 
 	position.x = new_x
 	position.y = new_y
+
+	if shake_strength > 0.05:
+		shake_offset = Vector2(
+			randf_range(-shake_strength, shake_strength),
+			randf_range(-shake_strength, shake_strength)
+		)
+		shake_strength *= shake_decay
+	else:
+		shake_offset = Vector2.ZERO
+	position += shake_offset
 
 func _input(event):
 	if event is InputEventMouseButton:
