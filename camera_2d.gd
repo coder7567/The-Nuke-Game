@@ -11,6 +11,10 @@ var map_size: Vector2
 # Juice Variables
 var target_zoom = Vector2.ONE
 var zoom_tween: Tween
+var velocity = Vector2.ZERO
+var friction = 0.90
+var acceleration = 1.0
+
 
 func _ready():
 	if map and map.texture:
@@ -18,6 +22,10 @@ func _ready():
 	target_zoom = zoom
 
 func _process(_delta):
+	position += velocity
+	velocity *= friction
+	if velocity.length() < 0.01:
+		velocity = Vector2.ZERO
 	# 1. Calculate actual visible area
 	var visible_size = get_viewport_rect().size / zoom
 	var half_screen = visible_size / 2.0
@@ -43,8 +51,17 @@ func _process(_delta):
 		marker.scale = Vector2(0.2, 0.2) / zoom
 
 	# 5. Apply Position Clamping
-	position.x = clamp(position.x, min_x, max_x)
-	position.y = clamp(position.y, min_y, max_y)
+	var new_x = clamp(position.x, min_x, max_x)
+	var new_y = clamp(position.y, min_y, max_y)
+
+	# If we hit boundary, kill velocity in that direction
+	if new_x != position.x:
+		velocity.x = 0
+	if new_y != position.y:
+		velocity.y = 0
+
+	position.x = new_x
+	position.y = new_y
 
 func _input(event):
 	if event is InputEventMouseButton:
@@ -60,7 +77,7 @@ func _input(event):
 			dragging = event.pressed
 
 	if event is InputEventMouseMotion and dragging:
-		position -= event.relative * (drag_sensitivity / zoom.x)
+		velocity -= event.relative * (drag_sensitivity / zoom.x) * acceleration
 
 func apply_zoom_effect(zoom_delta: float, rotation_delta: float):
 	# Update target_zoom directly
