@@ -40,6 +40,7 @@ func _input(event):
 			zoom -= Vector2(zoom_speed, zoom_speed)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			zoom += Vector2(zoom_speed, zoom_speed)
+			zoom = zoom.min(Vector2(2.0, 2.0)) 
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			dragging = event.pressed
 
